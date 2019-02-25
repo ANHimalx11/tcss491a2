@@ -2,7 +2,7 @@
 // GameBoard code below
 
 var minRadius = 20;
-var maxRadius = 500;
+var maxRadius = 50;
 var minColor = 0;
 var maxColor = 7;
 
@@ -34,14 +34,15 @@ Circle.prototype = new Entity();
 Circle.prototype.constructor = Circle;
 
 Circle.prototype.setIt = function () {
+    
     this.it = true;
-    this.color = 0;
+    // this.color = 0;
     this.visualRadius = 500;
 };
 
 Circle.prototype.setNotIt = function () {
     this.it = false;
-    this.color = 3;
+    // this.color = 3;
     this.visualRadius = 200;
 };
 
@@ -49,32 +50,31 @@ Circle.prototype.setRandomRadius = function () {
     var rdmRad;
     rdmRad = Math.random(minRadius, maxRadius);
     rdmRad = Math.ceil(rdmRad * 20);
+    if (rdmRad < 5) {
+        rdmRad = rdmRad +10;
+    }
     this.radius = rdmRad;
 };
-
-// Circle.prototype.setRandomColor = function () {
-//     var rdmColor;
-//     rdmColor = Math.random(0, 7);
-//     rdmColor = rdmColor * 100 / 10;
-//     this.color = rdmColor;
-// }
 
 Circle.prototype.eat = function (other) {
     if (this.radius > other.radius) {
         this.radius = this.radius + other.radius;
-        this.speed = (this.speed / this.radius);
-        this.setIt();
-    }
-}
-Circle.prototype.mate = function (other) {
-    if (this.radius === other.radius) {
-       var babyCircle = new Circle();
-        console.log(babyCircle)
+        if (this.radius > maxRadius) {
+            this.radius = maxRadius;
+        }
     }
 }
 
 Circle.prototype.gotEaten = function () {
     this.removeFromWorld = true;
+}
+
+Circle.prototype.setRandomColor = function () {
+    var rdmNumber;
+    rdmNumber = Math.random(0,7);
+    rdmNumber = rdmNumber*100;
+    rdmNumber = rdmNumber/10;
+    this.color = Math.floor(rdmNumber);
 }
 
 Circle.prototype.collide = function (other) {
@@ -131,13 +131,7 @@ Circle.prototype.update = function () {
     //     this.x += this.velocity.x * this.game.clockTick;
     //     this.y += this.velocity.y * this.game.clockTick;
     // }
-    for (var i = 0; i < this.game.entities.length; i++) {
-        var ent = this.game.entities[i];
-        if (ent !== this && this.collide(ent)) {
-            this.mate(ent);
-        }
-    }
-
+  
     for (var i = 0; i < this.game.entities.length; i++) {
         var ent = this.game.entities[i];
         if (ent !== this && this.collide(ent)) {
@@ -169,9 +163,11 @@ Circle.prototype.update = function () {
             else if (ent.it) {
                 // this.setIt();
                 this.gotEaten();
+                console.log('eaten');
             }
         }
 
+        
         if (ent != this && this.collide({ x: ent.x, y: ent.y, radius: this.visualRadius })) {
             var dist = distance(this, ent);
             if (this.it && dist > this.radius + ent.radius + 10) {
@@ -186,6 +182,7 @@ Circle.prototype.update = function () {
                     this.velocity.y *= ratio;
                 }
             }
+            //this is the predator
             if (ent.it && dist > this.radius + ent.radius) {
                 var difX = (ent.x - this.x) / dist;
                 var difY = (ent.y - this.y) / dist;
@@ -225,8 +222,6 @@ var maxSpeed = 200;
 var ASSET_MANAGER = new AssetManager();
 
 ASSET_MANAGER.queueDownload("./img/960px-Blank_Go_board.png");
-ASSET_MANAGER.queueDownload("./img/black.png");
-ASSET_MANAGER.queueDownload("./img/white.png");
 
 ASSET_MANAGER.downloadAll(function () {
     console.log("starting up da sheild");
@@ -238,9 +233,13 @@ ASSET_MANAGER.downloadAll(function () {
     var circle = new Circle(gameEngine);
     circle.setIt();
     gameEngine.addEntity(circle);
-    for (var i = 0; i < 50; i++) {
+    for (var i = 0; i < 100; i++) {
         circle = new Circle(gameEngine);
+        if (i % 25 == 0) {
+            circle.setIt();
+        }
         circle.setRandomRadius();
+        circle.setRandomColor();
         gameEngine.addEntity(circle);
     }
 
