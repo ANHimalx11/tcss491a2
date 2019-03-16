@@ -18,6 +18,7 @@ function Circle(game) {
     this.radius = 20;
     this.visualRadius = 500;
     this.colors = ["Red", "Green", "Blue", "White", "Yellow", "Purple", "Cyan"];
+    this.mutateBank = [];
     this.setNotIt();
     Entity.call(this, game, this.radius + Math.random() * (800 - this.radius * 2), this.radius + Math.random() * (800 - this.radius * 2));
 
@@ -63,6 +64,7 @@ Circle.prototype.eat = function (other) {
             this.radius = maxRadius;
         }
     }
+    this.mutateColor(other);
 }
 
 Circle.prototype.gotEaten = function () {
@@ -75,6 +77,11 @@ Circle.prototype.setRandomColor = function () {
     rdmNumber = rdmNumber*100;
     rdmNumber = rdmNumber/10;
     this.color = Math.floor(rdmNumber);
+    this.mutateBank.push(Math.floor(rdmNumber));
+}
+Circle.prototype.mutateColor = function(other) {
+    this.mutateBank.push[other.color];
+
 }
 
 Circle.prototype.collide = function (other) {
@@ -208,9 +215,22 @@ Circle.prototype.draw = function (ctx) {
     ctx.fillStyle = this.colors[this.color];
     ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2, false);
     ctx.fill();
+    // this.drawMutation(ctx);
     ctx.closePath();
 
 };
+
+Circle.prototype.drawMutation = function (ctx) {
+    var mutateLength = this.mutateBank.length;
+
+    for (var i = mutateLength; i > 0; i --) {
+        ctx.beginPath();
+        ctx.fillStyle = this.colors[this.mutateBank[i]];
+        ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2, false );
+        ctx.fill();
+        ctx.closePath();
+    }
+}
 
 
 
